@@ -23,7 +23,8 @@ const PKIFolder = "pki";
 const serverCertificate = "server_certificate.pem";
 const privateKey = "private_key.pem";
 const port = 4840;
-const ip = "192.168.3.103";
+// const ip = "192.168.3.103";
+const ip = "127.0.0.1";
 
 const userManager = {
     isValidUser: function(userName: string, password: string) {
@@ -62,11 +63,11 @@ const server = new OPCUAServer({
     userManager: userManager,
     allowAnonymous: false,
     securityModes: [
-        //MessageSecurityMode.None, 
+        MessageSecurityMode.None, 
         MessageSecurityMode.SignAndEncrypt,
     ],
     securityPolicies: [
-        //SecurityPolicy.None, 
+        SecurityPolicy.None, 
         SecurityPolicy.Basic256Sha256,
     ],
     disableDiscovery: false,
