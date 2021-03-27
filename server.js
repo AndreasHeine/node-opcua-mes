@@ -1,4 +1,6 @@
-import { OPCUACertificateManager, OPCUAServer, MessageSecurityMode, SecurityPolicy, DataType, VariantArrayType, makeAccessLevelFlag, StatusCodes, } from "node-opcua";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const node_opcua_1 = require("node-opcua");
 const applicationUri = "urn:AndreasHeineOpcUaServer";
 const PKIFolder = "pki";
 const serverCertificate = "server_certificate.pem";
@@ -14,12 +16,12 @@ const userManager = {
         return false;
     }
 };
-const serverCertificateManager = new OPCUACertificateManager({
+const serverCertificateManager = new node_opcua_1.OPCUACertificateManager({
     automaticallyAcceptUnknownCertificate: false,
     name: "pki",
     rootFolder: PKIFolder
 });
-const server = new OPCUAServer({
+const server = new node_opcua_1.OPCUAServer({
     port: port,
     hostname: ip,
     resourcePath: "/UA",
@@ -41,12 +43,12 @@ const server = new OPCUAServer({
     userManager: userManager,
     allowAnonymous: false,
     securityModes: [
-        MessageSecurityMode.None,
-        MessageSecurityMode.SignAndEncrypt,
+        node_opcua_1.MessageSecurityMode.None,
+        node_opcua_1.MessageSecurityMode.SignAndEncrypt,
     ],
     securityPolicies: [
-        SecurityPolicy.None,
-        SecurityPolicy.Basic256Sha256,
+        node_opcua_1.SecurityPolicy.None,
+        node_opcua_1.SecurityPolicy.Basic256Sha256,
     ],
     disableDiscovery: false,
     serverCertificateManager: serverCertificateManager,
@@ -83,51 +85,51 @@ function construct_my_address_space(server) {
             {
                 name: "CarrierId",
                 description: "tray or carrier id",
-                dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                dataType: node_opcua_1.DataType.UInt32,
+                arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
             {
                 name: "MachineId",
                 description: "unique machine id",
-                dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                dataType: node_opcua_1.DataType.UInt32,
+                arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
         ],
         outputArguments: [
             {
                 name: "CarrierId",
                 description: "tray or carrier id",
-                dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                dataType: node_opcua_1.DataType.UInt32,
+                arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
             {
                 name: "MachineId",
                 description: "unique machine id",
-                dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                dataType: node_opcua_1.DataType.UInt32,
+                arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint1",
                 description: "setpoint for pretreatment",
-                dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                dataType: node_opcua_1.DataType.UInt32,
+                arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint2",
                 description: "setpoint for pretreatment",
-                dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                dataType: node_opcua_1.DataType.UInt32,
+                arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint3",
                 description: "setpoint for pretreatment",
-                dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                dataType: node_opcua_1.DataType.UInt32,
+                arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
         ]
     });
-    GetCarrierDataMethod.outputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
-    GetCarrierDataMethod.inputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
+    GetCarrierDataMethod.outputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
+    GetCarrierDataMethod.inputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
     GetCarrierDataMethod.bindMethod((inputArguments, context, callback) => {
         const carrier = inputArguments[0].value;
         const machine = inputArguments[1].value;
@@ -149,31 +151,31 @@ function construct_my_address_space(server) {
         }
         ;
         const callMethodResult = {
-            statusCode: StatusCodes.Good,
+            statusCode: node_opcua_1.StatusCodes.Good,
             outputArguments: [
                 {
-                    dataType: DataType.UInt32,
-                    arrayType: VariantArrayType.Scalar,
+                    dataType: node_opcua_1.DataType.UInt32,
+                    arrayType: node_opcua_1.VariantArrayType.Scalar,
                     value: carrier
                 },
                 {
-                    dataType: DataType.UInt32,
-                    arrayType: VariantArrayType.Scalar,
+                    dataType: node_opcua_1.DataType.UInt32,
+                    arrayType: node_opcua_1.VariantArrayType.Scalar,
                     value: machine
                 },
                 {
-                    dataType: DataType.UInt32,
-                    arrayType: VariantArrayType.Scalar,
+                    dataType: node_opcua_1.DataType.UInt32,
+                    arrayType: node_opcua_1.VariantArrayType.Scalar,
                     value: ProzessSetpoint1
                 },
                 {
-                    dataType: DataType.UInt32,
-                    arrayType: VariantArrayType.Scalar,
+                    dataType: node_opcua_1.DataType.UInt32,
+                    arrayType: node_opcua_1.VariantArrayType.Scalar,
                     value: ProzessSetpoint2
                 },
                 {
-                    dataType: DataType.UInt32,
-                    arrayType: VariantArrayType.Scalar,
+                    dataType: node_opcua_1.DataType.UInt32,
+                    arrayType: node_opcua_1.VariantArrayType.Scalar,
                     value: ProzessSetpoint3
                 }
             ]

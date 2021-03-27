@@ -78,21 +78,13 @@ const server = new OPCUAServer({
         "./nodesets/Opc.Ua.NodeSet2.xml", 
         "./nodesets/Opc.Ua.Di.NodeSet2.xml", 
         "./nodesets/Opc.Ua.Machinery.NodeSet2.xml",
-        //"./nodesets/VDMA-OPC-Surface-Technology-Initiative-CS.xml",
     ],
 });
 
-function construct_my_address_space(server) {
+function construct_my_address_space(server: OPCUAServer) {
 
     const addressSpace = server.engine.addressSpace;
     const namespace = addressSpace.registerNamespace("http://andreas-heine.net/ua/");
-
-    // const st_cs = addressSpace.getNamespace("http://vdma-opc-st-initiative-cs/ua");
-    // const vessleType = st_cs.findObjectType("VesselObjectType");
-    // const vesselobj = vessleType.instantiate({
-    //     browseName: "myVessel",
-    //     componentOf: ,
-    // });
 
     const mesNode = namespace.addObject({
         organizedBy: addressSpace.rootFolder.objects,
@@ -115,13 +107,13 @@ function construct_my_address_space(server) {
                 name: "CarrierId",
                 description: "tray or carrier id",
                 dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                arrayDimensions: [VariantArrayType.Scalar],
             },                
             {
                 name: "MachineId",
                 description: "unique machine id",
                 dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                arrayDimensions: [VariantArrayType.Scalar],
             },
         ],
         outputArguments: [
@@ -129,31 +121,31 @@ function construct_my_address_space(server) {
                 name: "CarrierId",
                 description: "tray or carrier id",
                 dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                arrayDimensions: [VariantArrayType.Scalar],
             },
             {
                 name: "MachineId",
                 description: "unique machine id",
                 dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                arrayDimensions: [VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint1",
                 description: "setpoint for pretreatment",
                 dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                arrayDimensions: [VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint2",
                 description: "setpoint for pretreatment",
                 dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                arrayDimensions: [VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint3",
                 description: "setpoint for pretreatment",
                 dataType: DataType.UInt32,
-                arrayDimensions: VariantArrayType.Scalar,
+                arrayDimensions: [VariantArrayType.Scalar],
             },
         ]
     });
