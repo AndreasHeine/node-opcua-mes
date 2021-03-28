@@ -27,7 +27,7 @@ const port = 4840;
 const ip = "127.0.0.1";
 
 const userManager = {
-    isValidUser: function(userName: string, password: string) {
+    isValidUser: (userName: string, password: string) => {
         if (userName === "user" && password === "pw") {
             return true;
         }
@@ -84,6 +84,8 @@ const server = new OPCUAServer({
 function construct_my_address_space(server: OPCUAServer) {
 
     const addressSpace = server.engine.addressSpace;
+    if (addressSpace === null) return
+
     const namespace = addressSpace.registerNamespace("http://andreas-heine.net/ua/");
 
     const mesNode = namespace.addObject({
@@ -150,21 +152,29 @@ function construct_my_address_space(server: OPCUAServer) {
         ]
     });
 
-    GetCarrierDataMethod.outputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
-    GetCarrierDataMethod.inputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
+    if (GetCarrierDataMethod.outputArguments != undefined) {
+        GetCarrierDataMethod.outputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
+    }
+
+    if (GetCarrierDataMethod.inputArguments != undefined) {
+        GetCarrierDataMethod.inputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
+    }
 
     GetCarrierDataMethod.bindMethod((inputArguments,context,callback) => {
         
         const carrier = inputArguments[0].value;
         const machine =  inputArguments[1].value;
 
-        let ProzessSetpoint1;
-        let ProzessSetpoint2;
-        let ProzessSetpoint3;
+        let ProzessSetpoint1: number;
+        let ProzessSetpoint2: number;
+        let ProzessSetpoint3: number;
 
         /* 
         SQL-Querry
         */
+        console.log("SQL-Query");
+        console.log(`Request for carrier: ${carrier} and machine: ${machine}`);
+        
 
         if (carrier === 0 || machine === 0) {
             ProzessSetpoint1 = 0;
@@ -209,10 +219,12 @@ function construct_my_address_space(server: OPCUAServer) {
         callback(null,callMethodResult);
     })
 
-    const SetCarrierDataMethod = namespace.addMethod(methodfolder, {
-        browseName: "SetCarrierData",
-        displayName: "SetCarrierData",
-    })
+    // const SetCarrierDataMethod = namespace.addMethod(methodfolder, {
+    //     browseName: "SetCarrierData",
+    //     displayName: "SetCarrierData",
+    //     inputArguments: [],
+    //     outputArguments: [],
+    // })
 
 };
 

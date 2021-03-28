@@ -9,7 +9,7 @@ const port = 4840;
 // const ip = "192.168.3.103";
 const ip = "127.0.0.1";
 const userManager = {
-    isValidUser: function (userName, password) {
+    isValidUser: (userName, password) => {
         if (userName === "user" && password === "pw") {
             return true;
         }
@@ -62,13 +62,9 @@ const server = new node_opcua_1.OPCUAServer({
 });
 function construct_my_address_space(server) {
     const addressSpace = server.engine.addressSpace;
+    if (addressSpace === null)
+        return;
     const namespace = addressSpace.registerNamespace("http://andreas-heine.net/ua/");
-    // const st_cs = addressSpace.getNamespace("http://vdma-opc-st-initiative-cs/ua");
-    // const vessleType = st_cs.findObjectType("VesselObjectType");
-    // const vesselobj = vessleType.instantiate({
-    //     browseName: "myVessel",
-    //     componentOf: ,
-    // });
     const mesNode = namespace.addObject({
         organizedBy: addressSpace.rootFolder.objects,
         browseName: "MES"
@@ -128,8 +124,12 @@ function construct_my_address_space(server) {
             },
         ]
     });
-    GetCarrierDataMethod.outputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
-    GetCarrierDataMethod.inputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
+    if (GetCarrierDataMethod.outputArguments != undefined) {
+        GetCarrierDataMethod.outputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
+    }
+    if (GetCarrierDataMethod.inputArguments != undefined) {
+        GetCarrierDataMethod.inputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
+    }
     GetCarrierDataMethod.bindMethod((inputArguments, context, callback) => {
         const carrier = inputArguments[0].value;
         const machine = inputArguments[1].value;
@@ -139,6 +139,8 @@ function construct_my_address_space(server) {
         /*
         SQL-Querry
         */
+        console.log("SQL-Query");
+        console.log(`Request for carrier: ${carrier} and machine: ${machine}`);
         if (carrier === 0 || machine === 0) {
             ProzessSetpoint1 = 0;
             ProzessSetpoint2 = 0;
@@ -182,10 +184,12 @@ function construct_my_address_space(server) {
         };
         callback(null, callMethodResult);
     });
-    const SetCarrierDataMethod = namespace.addMethod(methodfolder, {
-        browseName: "SetCarrierData",
-        displayName: "SetCarrierData",
-    });
+    // const SetCarrierDataMethod = namespace.addMethod(methodfolder, {
+    //     browseName: "SetCarrierData",
+    //     displayName: "SetCarrierData",
+    //     inputArguments: [],
+    //     outputArguments: [],
+    // })
 }
 ;
 function startup() {
