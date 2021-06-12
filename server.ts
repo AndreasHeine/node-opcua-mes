@@ -10,8 +10,9 @@ import {
     resolveNodeId,
     ModellingRuleType,
     AddressSpace,
+    ServerCapabilities,
+    OperationLimits,
 } from "node-opcua";
-// import "node-opcua";
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -23,7 +24,6 @@ const PKIFolder = "pki";
 const serverCertificate = "server_certificate.pem";
 const privateKey = "private_key.pem";
 const port = 4840;
-// const ip = "192.168.3.103";
 const ip = "127.0.0.1";
 
 const userManager = {
@@ -60,6 +60,18 @@ const server = new OPCUAServer({
         applicationUri,
         productUri: "NodeOPCUA-Server"
       },
+    serverCapabilities: new ServerCapabilities({
+        maxBrowseContinuationPoints: 10,
+        maxArrayLength: 1000,
+        operationLimits: new OperationLimits({
+            maxMonitoredItemsPerCall: 1000,
+            maxNodesPerBrowse: 1000,
+            maxNodesPerRead: 1000,
+            maxNodesPerRegisterNodes: 1000,
+            maxNodesPerTranslateBrowsePathsToNodeIds: 1000,
+            maxNodesPerWrite: 1000,
+        })
+    }),
     userManager: userManager,
     allowAnonymous: false,
     securityModes: [
@@ -81,7 +93,7 @@ const server = new OPCUAServer({
     ],
 });
 
-function construct_my_address_space(server: OPCUAServer) {
+function create_addressSpace() {
 
     const addressSpace = server.engine.addressSpace;
     if (addressSpace === null) return
@@ -228,10 +240,27 @@ function construct_my_address_space(server: OPCUAServer) {
 
 };
 
-function startup() {
-    construct_my_address_space(server);
+const init = () => {
+    create_addressSpace();
+
     server.start();
-    console.log("Server started!");
+    
+    const endpointUrl = server.endpoints[0].endpointDescriptions()[0].endpointUrl;
+
+    process.on("SIGINT", () => {
+        process.exit(0);
+    });
 }
 
-server.initialize(startup);
+(async () => {
+
+    try {
+        server.initialize(init);
+    } catch (error) {
+        console.log("error", error);
+        process.exit(-1);
+    }
+
+})();
+
+

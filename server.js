@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_opcua_1 = require("node-opcua");
 const applicationUri = "urn:AndreasHeineOpcUaServer";
@@ -6,7 +15,6 @@ const PKIFolder = "pki";
 const serverCertificate = "server_certificate.pem";
 const privateKey = "private_key.pem";
 const port = 4840;
-// const ip = "192.168.3.103";
 const ip = "127.0.0.1";
 const userManager = {
     isValidUser: (userName, password) => {
@@ -40,6 +48,18 @@ const server = new node_opcua_1.OPCUAServer({
         applicationUri,
         productUri: "NodeOPCUA-Server"
     },
+    serverCapabilities: new node_opcua_1.ServerCapabilities({
+        maxBrowseContinuationPoints: 10,
+        maxArrayLength: 1000,
+        operationLimits: new node_opcua_1.OperationLimits({
+            maxMonitoredItemsPerCall: 1000,
+            maxNodesPerBrowse: 1000,
+            maxNodesPerRead: 1000,
+            maxNodesPerRegisterNodes: 1000,
+            maxNodesPerTranslateBrowsePathsToNodeIds: 1000,
+            maxNodesPerWrite: 1000,
+        })
+    }),
     userManager: userManager,
     allowAnonymous: false,
     securityModes: [
@@ -60,7 +80,7 @@ const server = new node_opcua_1.OPCUAServer({
         "./nodesets/Opc.Ua.Machinery.NodeSet2.xml",
     ],
 });
-function construct_my_address_space(server) {
+function create_addressSpace() {
     const addressSpace = server.engine.addressSpace;
     if (addressSpace === null)
         return;
@@ -192,9 +212,20 @@ function construct_my_address_space(server) {
     // })
 }
 ;
-function startup() {
-    construct_my_address_space(server);
+const init = () => {
+    create_addressSpace();
     server.start();
-    console.log("Server started!");
-}
-server.initialize(startup);
+    const endpointUrl = server.endpoints[0].endpointDescriptions()[0].endpointUrl;
+    process.on("SIGINT", () => {
+        process.exit(0);
+    });
+};
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        server.initialize(init);
+    }
+    catch (error) {
+        console.log("error", error);
+        process.exit(-1);
+    }
+}))();
