@@ -1,21 +1,26 @@
 {
-  "name": "test",
+  "name": "opcua-server",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc && node server.js",
     "debug": "tsc && node --inspect server.js",
     "build": "tsc && pkg -t win server.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndreasHeine/node-opcua-mes.git"
+  },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "node-opcua": "^2.21.0"
+  "bugs": {
+    "url": "https://github.com/AndreasHeine/node-opcua-mes/issues"
   },
-  "devDependencies": {
-    "@types/node": "^14.14.6"
+  "homepage": "https://github.com/AndreasHeine/node-opcua-mes#readme",
+  "dependencies": {
+    "@types/node": "^15.12.2",
+    "node-opcua": "^2.44.0"
   }
 }
