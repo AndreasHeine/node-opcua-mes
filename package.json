@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/AndreasHeine/node-opcua-mes#readme",
   "dependencies": {
-    "@types/node": "^15.12.2",
-    "node-opcua": "^2.44.0"
+    "node-opcua": "^2.50.0"
   }
 }

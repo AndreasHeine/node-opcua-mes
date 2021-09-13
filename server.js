@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_opcua_1 = require("node-opcua");
+const port = Number(process.env.PORT) || 4840;
+const ip = process.env.IP || "0.0.0.0";
 const applicationUri = "urn:AndreasHeineOpcUaServer";
 const PKIFolder = "pki";
 const serverCertificate = "server_certificate.pem";
 const privateKey = "private_key.pem";
-const port = 4840;
-const ip = "127.0.0.1";
 const userManager = {
     isValidUser: (userName, password) => {
         if (userName === "user" && password === "pw") {
@@ -80,11 +80,11 @@ const server = new node_opcua_1.OPCUAServer({
         "./nodesets/Opc.Ua.Machinery.NodeSet2.xml",
     ],
 });
-function create_addressSpace() {
+const create_addressSpace = () => __awaiter(void 0, void 0, void 0, function* () {
     const addressSpace = server.engine.addressSpace;
     if (addressSpace === null)
         return;
-    const namespace = addressSpace.registerNamespace("http://andreas-heine.net/ua/");
+    const namespace = addressSpace.registerNamespace("http://andreas-heine.net/UA/MES/");
     const mesNode = namespace.addObject({
         organizedBy: addressSpace.rootFolder.objects,
         browseName: "MES"
@@ -97,6 +97,8 @@ function create_addressSpace() {
     const GetCarrierDataMethod = namespace.addMethod(methodfolder, {
         browseName: "GetCarrierData",
         displayName: "GetCarrierData",
+        executable: true,
+        userExecutable: true,
         inputArguments: [
             {
                 name: "CarrierId",
@@ -126,83 +128,110 @@ function create_addressSpace() {
             },
             {
                 name: "ProzessSetpoint1",
-                description: "setpoint for pretreatment",
+                description: "setpoint",
                 dataType: node_opcua_1.DataType.UInt32,
                 arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint2",
-                description: "setpoint for pretreatment",
+                description: "setpoint",
                 dataType: node_opcua_1.DataType.UInt32,
                 arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
             {
                 name: "ProzessSetpoint3",
-                description: "setpoint for pretreatment",
+                description: "setpoint",
                 dataType: node_opcua_1.DataType.UInt32,
                 arrayDimensions: [node_opcua_1.VariantArrayType.Scalar],
             },
         ]
     });
-    if (GetCarrierDataMethod.outputArguments != undefined) {
+    if (GetCarrierDataMethod.outputArguments) {
         GetCarrierDataMethod.outputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
     }
-    if (GetCarrierDataMethod.inputArguments != undefined) {
+    if (GetCarrierDataMethod.inputArguments) {
         GetCarrierDataMethod.inputArguments.userAccessLevel = node_opcua_1.makeAccessLevelFlag("CurrentRead");
     }
     GetCarrierDataMethod.bindMethod((inputArguments, context, callback) => {
         const carrier = inputArguments[0].value;
         const machine = inputArguments[1].value;
-        let ProzessSetpoint1;
-        let ProzessSetpoint2;
-        let ProzessSetpoint3;
-        /*
-        SQL-Querry
-        */
-        console.log("SQL-Query");
-        console.log(`Request for carrier: ${carrier} and machine: ${machine}`);
+        // validate inputs!
         if (carrier === 0 || machine === 0) {
-            ProzessSetpoint1 = 0;
-            ProzessSetpoint2 = 0;
-            ProzessSetpoint3 = 0;
+            // inputs invalid
+            // TODO! maybe refactor to factoryfunction returning the resultobject
+            callback(null, {
+                statusCode: node_opcua_1.StatusCodes.BadNothingToDo,
+                outputArguments: [
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: carrier
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: machine
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: 0
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: 0
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: 0
+                    }
+                ]
+            });
         }
         else {
-            ProzessSetpoint1 = 100;
-            ProzessSetpoint2 = 200;
-            ProzessSetpoint3 = 300;
+            // inputs valid
+            /*
+            SQL-Querry
+            */
+            console.log("SQL-Query");
+            console.log(`Request for carrier: ${carrier} and machine: ${machine}`);
+            let ProzessSetpoint1 = 100;
+            let ProzessSetpoint2 = 200;
+            let ProzessSetpoint3 = 300;
+            callback(null, {
+                statusCode: node_opcua_1.StatusCodes.Good,
+                outputArguments: [
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: carrier
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: machine
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: ProzessSetpoint1
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: ProzessSetpoint2
+                    },
+                    {
+                        dataType: node_opcua_1.DataType.UInt32,
+                        arrayType: node_opcua_1.VariantArrayType.Scalar,
+                        value: ProzessSetpoint3
+                    }
+                ]
+            });
         }
         ;
-        const callMethodResult = {
-            statusCode: node_opcua_1.StatusCodes.Good,
-            outputArguments: [
-                {
-                    dataType: node_opcua_1.DataType.UInt32,
-                    arrayType: node_opcua_1.VariantArrayType.Scalar,
-                    value: carrier
-                },
-                {
-                    dataType: node_opcua_1.DataType.UInt32,
-                    arrayType: node_opcua_1.VariantArrayType.Scalar,
-                    value: machine
-                },
-                {
-                    dataType: node_opcua_1.DataType.UInt32,
-                    arrayType: node_opcua_1.VariantArrayType.Scalar,
-                    value: ProzessSetpoint1
-                },
-                {
-                    dataType: node_opcua_1.DataType.UInt32,
-                    arrayType: node_opcua_1.VariantArrayType.Scalar,
-                    value: ProzessSetpoint2
-                },
-                {
-                    dataType: node_opcua_1.DataType.UInt32,
-                    arrayType: node_opcua_1.VariantArrayType.Scalar,
-                    value: ProzessSetpoint3
-                }
-            ]
-        };
-        callback(null, callMethodResult);
     });
     // const SetCarrierDataMethod = namespace.addMethod(methodfolder, {
     //     browseName: "SetCarrierData",
@@ -210,22 +239,39 @@ function create_addressSpace() {
     //     inputArguments: [],
     //     outputArguments: [],
     // })
-}
-;
-const init = () => {
-    create_addressSpace();
-    server.start();
-    const endpointUrl = server.endpoints[0].endpointDescriptions()[0].endpointUrl;
+});
+const startup = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(" starting server... ");
+    yield server.start();
+    console.log(" server is ready on: ");
+    server.endpoints.forEach(endpoint => console.log(" |--> ", endpoint.endpointDescriptions()[0].endpointUrl));
+    console.log(" CTRL+C to stop ");
     process.on("SIGINT", () => {
-        process.exit(0);
+        if (server.engine.serverStatus.state === node_opcua_1.ServerState.Shutdown) {
+            console.log(" Server shutdown already requested... shutdown will happen in ", server.engine.serverStatus.secondsTillShutdown, "second");
+            return;
+        }
+        console.log(" Received server interruption from user ");
+        console.log(" shutting down ...");
+        const reason = node_opcua_1.coerceLocalizedText("Shutdown by administrator");
+        if (reason) {
+            server.engine.serverStatus.shutdownReason = reason;
+        }
+        server.shutdown(10000, () => {
+            console.log(" shutting down completed ");
+            console.log(" done ");
+            process.exit(0);
+        });
     });
-};
+});
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        server.initialize(init);
+        yield server.initialize();
+        yield create_addressSpace();
+        yield startup();
     }
     catch (error) {
-        console.log("error", error);
+        console.log(" error ", error);
         process.exit(-1);
     }
 }))();
