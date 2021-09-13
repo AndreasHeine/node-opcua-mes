@@ -220,8 +220,8 @@ const create_addressSpace = async () => {
             /* 
             sql-querry
             */
-            console.log("SQL-Query")
-            console.log(`Request for carrier: ${carrier} and machine: ${machine}`)
+            console.log("sql-query");
+            console.log(`request for getCarrierData -> carrier: ${carrier} and machine: ${machine}`)
 
             // get mockdata
             let ProzessSetpoint1 = dbSetpoint1
