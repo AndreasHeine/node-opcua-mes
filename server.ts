@@ -11,31 +11,30 @@ import {
     OperationLimits,
     ServerState,
     coerceLocalizedText,
+} from "node-opcua"
 
-} from "node-opcua";
+const port = Number(process.env.PORT) || 4840
+const ip = process.env.IP || "0.0.0.0"
 
-const port = Number(process.env.PORT) || 4840;
-const ip = process.env.IP || "0.0.0.0";
-
-const applicationUri = "urn:AndreasHeineOpcUaServer";
-const PKIFolder = "pki";
-const serverCertificate = "server_certificate.pem";
-const privateKey = "private_key.pem";
+const applicationUri = "urn:AndreasHeineOpcUaServer"
+const PKIFolder = "pki"
+const serverCertificate = "server_certificate.pem"
+const privateKey = "private_key.pem"
 
 const userManager = {
     isValidUser: (userName: string, password: string) => {
         if (userName === "user" && password === "pw") {
-            return true;
+            return true
         }
-        return false;
+        return false
     }
-};
+}
 
 const serverCertificateManager = new OPCUACertificateManager({
     automaticallyAcceptUnknownCertificate: false,
     name: "pki",
     rootFolder: PKIFolder
-});
+})
 
 const server = new OPCUAServer({
     port: port,
@@ -87,7 +86,14 @@ const server = new OPCUAServer({
         "./nodesets/Opc.Ua.Di.NodeSet2.xml", 
         "./nodesets/Opc.Ua.Machinery.NodeSet2.xml",
     ],
-});
+})
+
+/*
+mockdata
+*/
+let dbSetpoint1 = 100
+let dbSetpoint2 = 200
+let dbSetpoint3 = 300
 
 const create_addressSpace = async () => {
     const addressSpace = server.engine.addressSpace;
@@ -98,7 +104,7 @@ const create_addressSpace = async () => {
     const mesNode = namespace.addObject({
         organizedBy: addressSpace.rootFolder.objects,
         browseName: "MES"
-    });
+    })
 
     const methodfolder = namespace.addObject(
         {
@@ -106,9 +112,9 @@ const create_addressSpace = async () => {
             componentOf: mesNode,
             typeDefinition: "FolderType",
         }
-    );
+    )
     
-    const GetCarrierDataMethod = namespace.addMethod(methodfolder, {
+    const getCarrierDataMethod = namespace.addMethod(methodfolder, {
         browseName: "GetCarrierData",
         displayName: "GetCarrierData",
         executable: true,
@@ -159,20 +165,20 @@ const create_addressSpace = async () => {
                 arrayDimensions: [VariantArrayType.Scalar],
             },
         ]
-    });
+    })
 
-    if (GetCarrierDataMethod.outputArguments) {
-        GetCarrierDataMethod.outputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
+    if (getCarrierDataMethod.outputArguments) {
+        getCarrierDataMethod.outputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead")
     }
 
-    if (GetCarrierDataMethod.inputArguments) {
-        GetCarrierDataMethod.inputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead");
+    if (getCarrierDataMethod.inputArguments) {
+        getCarrierDataMethod.inputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead")
     }
 
-    GetCarrierDataMethod.bindMethod((inputArguments, context, callback) => {
+    getCarrierDataMethod.bindMethod((inputArguments, context, callback) => {
         
-        const carrier = inputArguments[0].value;
-        const machine =  inputArguments[1].value;
+        const carrier = inputArguments[0].value
+        const machine =  inputArguments[1].value
 
         // validate inputs!
         if (carrier === 0 || machine === 0) {
@@ -207,19 +213,20 @@ const create_addressSpace = async () => {
                         value: 0
                     }
                 ]
-            });
+            })
         } else {
             // inputs valid
 
             /* 
-            SQL-Querry
+            sql-querry
             */
-            console.log("SQL-Query");
-            console.log(`Request for carrier: ${carrier} and machine: ${machine}`);
+            console.log("SQL-Query")
+            console.log(`Request for carrier: ${carrier} and machine: ${machine}`)
 
-            let ProzessSetpoint1 = 100;
-            let ProzessSetpoint2 = 200;
-            let ProzessSetpoint3 = 300;
+            // get mockdata
+            let ProzessSetpoint1 = dbSetpoint1
+            let ProzessSetpoint2 = dbSetpoint2
+            let ProzessSetpoint3 = dbSetpoint3
 
             callback(null, {
                 statusCode: StatusCodes.Good,
@@ -252,48 +259,123 @@ const create_addressSpace = async () => {
                 ]
             });
         };
-    })
+    });
 
-    // const SetCarrierDataMethod = namespace.addMethod(methodfolder, {
-    //     browseName: "SetCarrierData",
-    //     displayName: "SetCarrierData",
-    //     inputArguments: [],
-    //     outputArguments: [],
-    // })
+    const setCarrierDataMethod = namespace.addMethod(methodfolder, {
+        browseName: "SetCarrierData",
+        displayName: "SetCarrierData",
+        inputArguments: [                    
+            {
+                name: "CarrierId",
+                description: "tray or carrier id",
+                dataType: DataType.UInt32,
+                arrayDimensions: [VariantArrayType.Scalar],
+            },                
+            {
+                name: "MachineId",
+                description: "unique machine id",
+                dataType: DataType.UInt32,
+                arrayDimensions: [VariantArrayType.Scalar],
+            },
+            {
+                name: "ProzessSetpoint1",
+                description: "new setpoint",
+                dataType: DataType.UInt32,
+                arrayDimensions: [VariantArrayType.Scalar],
+            },                
+            {
+                name: "ProzessSetpoint2",
+                description: "new setpoint",
+                dataType: DataType.UInt32,
+                arrayDimensions: [VariantArrayType.Scalar],
+            },
+            {
+                name: "ProzessSetpoint3",
+                description: "new setpoint",
+                dataType: DataType.UInt32,
+                arrayDimensions: [VariantArrayType.Scalar],
+            },
+    ],
+        outputArguments: [],
+    });
+
+    if (setCarrierDataMethod.outputArguments) {
+        setCarrierDataMethod.outputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead")
+    }
+
+    if (setCarrierDataMethod.inputArguments) {
+        setCarrierDataMethod.inputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead")
+    }
+
+    setCarrierDataMethod.bindMethod((inputArguments, context, callback) => {
+        const carrier = inputArguments[0].value
+        const machine =  inputArguments[1].value
+        const setpoint1 =  inputArguments[2].value
+        const setpoint2 =  inputArguments[3].value
+        const setpoint3 =  inputArguments[4].value
+
+        // validate inputs!
+        if (carrier === 0 || machine === 0 && setpoint1 != 0 && setpoint2 != 0 && setpoint3 != 0) {
+            // inputs invalid
+            // TODO! maybe refactor to factoryfunction returning the resultobject
+            callback(null, {
+                statusCode: StatusCodes.BadNothingToDo, // invalid inputs will be ignored
+                outputArguments: []
+            });
+        } else {
+            // inputs valid
+
+            /* 
+            sql-querry
+            */
+            console.log("sql-query");
+            console.log(`request for setCarrierData -> carrier: ${carrier} and machine: ${machine}`)
+
+            //write mockdata
+            dbSetpoint1 = setpoint1
+            dbSetpoint2 = setpoint2
+            dbSetpoint3 = setpoint3
+
+            callback(null, {
+                statusCode: StatusCodes.Good,
+                outputArguments: []
+            })
+        }
+    })
 }
 
 const startup = async () => {
-    console.log(" starting server... ");
-    await server.start();
-    console.log(" server is ready on: ");
-    server.endpoints.forEach(endpoint => console.log(" |--> ",endpoint.endpointDescriptions()[0].endpointUrl));
-    console.log(" CTRL+C to stop ");  
+    console.log(" starting server... ")
+    await server.start()
+    console.log(" server is ready on: ")
+    server.endpoints.forEach(endpoint => console.log(" |--> ",endpoint.endpointDescriptions()[0].endpointUrl))
+    console.log(" CTRL+C to stop ")
     process.on("SIGINT", () => {
         if (server.engine.serverStatus.state === ServerState.Shutdown) {
-            console.log(" Server shutdown already requested... shutdown will happen in ", server.engine.serverStatus.secondsTillShutdown, "second");
-            return;
+            console.log(" Server shutdown already requested... shutdown will happen in ", server.engine.serverStatus.secondsTillShutdown, "second")
+            return
         }
-        console.log(" Received server interruption from user ");
-        console.log(" shutting down ...");
-        const reason = coerceLocalizedText("Shutdown by administrator");
+        console.log(" Received server interruption from user ")
+        console.log(" shutting down ...")
+        const reason = coerceLocalizedText("Shutdown by administrator")
         if (reason) {
             server.engine.serverStatus.shutdownReason = reason;
         }
         server.shutdown(10000, () => {
-        console.log(" shutting down completed ");
-        console.log(" done ");
-        process.exit(0);
-        });
-    });
+        console.log(" shutting down completed ")
+        console.log(" done ")
+        process.exit(0)
+        })
+    })
 }
 
 (async () => {
     try {
-        await server.initialize();
-        await create_addressSpace();
-        await startup();
+        await server.initialize()
+        await create_addressSpace()
+        await startup()
     } catch (error) {
-        console.log(" error ", error);
-        process.exit(-1);
+        console.log(" error ", error)
+        process.exit(-1)
     }
-})();
+})()
