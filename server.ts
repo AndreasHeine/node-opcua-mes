@@ -40,7 +40,7 @@ const server = new OPCUAServer({
     port: port,
     hostname: ip,
     resourcePath: "/UA",
-    buildInfo : {
+    buildInfo: {
         productUri: "MES 1",
         productName: "MES",
         manufacturerName: "Andreas Heine",
