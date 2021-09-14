@@ -315,7 +315,7 @@ const create_addressSpace = async () => {
         const setpoint3 =  inputArguments[4].value
 
         // validate inputs!
-        if (carrier === 0 || machine === 0 && setpoint1 != 0 && setpoint2 != 0 && setpoint3 != 0) {
+        if (carrier === 0 || machine === 0 || setpoint1 === 0 || setpoint2 === 0 || setpoint3 === 0) {
             // inputs invalid
             // TODO! maybe refactor to factoryfunction returning the resultobject
             callback(null, {
