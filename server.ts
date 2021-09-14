@@ -96,10 +96,10 @@ let dbSetpoint2 = 200
 let dbSetpoint3 = 300
 
 const create_addressSpace = async () => {
-    const addressSpace = server.engine.addressSpace;
+    const addressSpace = server.engine.addressSpace
     if (addressSpace === null) return
 
-    const namespace = addressSpace.registerNamespace("http://andreas-heine.net/UA/MES/");
+    const namespace = addressSpace.registerNamespace("http://andreas-heine.net/UA/MES/")
 
     const mesNode = namespace.addObject({
         organizedBy: addressSpace.rootFolder.objects,
@@ -220,7 +220,7 @@ const create_addressSpace = async () => {
             /* 
             sql-querry
             */
-            console.log("sql-query");
+            console.log("sql-query")
             console.log(`request for getCarrierData -> carrier: ${carrier} and machine: ${machine}`)
 
             // get mockdata
@@ -257,9 +257,9 @@ const create_addressSpace = async () => {
                         value: ProzessSetpoint3
                     }
                 ]
-            });
-        };
-    });
+            })
+        }
+    })
 
     const setCarrierDataMethod = namespace.addMethod(methodfolder, {
         browseName: "SetCarrierData",
@@ -297,7 +297,7 @@ const create_addressSpace = async () => {
             },
     ],
         outputArguments: [],
-    });
+    })
 
     if (setCarrierDataMethod.outputArguments) {
         setCarrierDataMethod.outputArguments.userAccessLevel = makeAccessLevelFlag("CurrentRead")
@@ -321,14 +321,14 @@ const create_addressSpace = async () => {
             callback(null, {
                 statusCode: StatusCodes.BadNothingToDo, // invalid inputs will be ignored
                 outputArguments: []
-            });
+            })
         } else {
             // inputs valid
 
             /* 
             sql-querry
             */
-            console.log("sql-query");
+            console.log("sql-query")
             console.log(`request for setCarrierData -> carrier: ${carrier} and machine: ${machine}`)
 
             //write mockdata
@@ -359,7 +359,7 @@ const startup = async () => {
         console.log(" shutting down ...")
         const reason = coerceLocalizedText("Shutdown by administrator")
         if (reason) {
-            server.engine.serverStatus.shutdownReason = reason;
+            server.engine.serverStatus.shutdownReason = reason
         }
         server.shutdown(10000, () => {
         console.log(" shutting down completed ")
